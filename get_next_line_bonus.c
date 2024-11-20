@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: moel-idr <moel-idr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/17 19:47:23 by moel-idr          #+#    #+#             */
-/*   Updated: 2024/11/20 10:13:16 by moel-idr         ###   ########.fr       */
+/*   Created: 2024/11/20 08:03:42 by moel-idr          #+#    #+#             */
+/*   Updated: 2024/11/20 09:18:06 by moel-idr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*free_join(char *buffer, char *added_string)
 {
@@ -58,7 +58,6 @@ char	*leftovers(char *buffer)
 	char	*next;
 
 	i = 0;
-	next = NULL;
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	if (buffer[i] == '\0')
@@ -89,8 +88,8 @@ char	*read_line(char *outcome, int fd)
 		if (num_of_bytes < 0)
 		{
 			free(outcome);
-			free(buf);
 			outcome = NULL;
+			return (NULL);
 		}
 		buf[num_of_bytes] = 0;
 		outcome = free_join(outcome, buf);
@@ -103,22 +102,22 @@ char	*read_line(char *outcome, int fd)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*buffer = NULL;
+	static char	*buffer [OPEN_MAX];
 
 	if (BUFFER_SIZE < 1 || read(fd, 0, 0) < 0 || fd < 0)
 	{
-		free(buffer);
-		buffer = NULL;
+		free(buffer[fd]);
+		buffer[fd] = NULL;
 		return (NULL);
 	}
-	buffer = read_line(buffer, fd);
-	if (!buffer || !*buffer)
+	buffer[fd] = read_line(buffer[fd], fd);
+	if (!buffer[fd])
 	{
-		free(buffer);
-		buffer = NULL;
+		free(buffer[fd]);
+		buffer[fd] = NULL;
 		return (NULL);
 	}
-	line = take_line(buffer);
-	buffer = leftovers(buffer);
+	line = take_line(buffer[fd]);
+	buffer[fd] = leftovers(buffer[fd]);
 	return (line);
 }
